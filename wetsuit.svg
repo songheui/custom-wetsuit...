@@ -1,0 +1,74 @@
+<script>
+  // 4가지 색상
+  const COLORS = [
+    { name: "블랙", code: "#000000" },
+    { name: "차콜", code: "#333333" },
+    { name: "연그레이", code: "#aaaaaa" },
+    { name: "파랑", code: "#1f6fff" }
+  ];
+
+  // SVG 클래스 매핑 (색 기준으로 연결)
+  const PARTS = {
+    topMain:    ".cls-2",  // 노랑 → 상의메인
+    sideTop:    ".cls-4",  // 주황 → 상의옆서브(상)
+    sideBottom: ".cls-10", // 연하늘 → 상의옆서브(하)
+    armMain:    ".cls-8",  // 연두 → 팔 메인
+    armSub:     ".cls-1",  // 핑크 → 팔 서브
+    bottom:     ".cls-9"   // 갈색 → 하의
+  };
+
+  // 버튼 생성
+  function makeButtons(partId) {
+    const wrap = document.getElementById(partId);
+    COLORS.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "color-btn";
+      btn.dataset.target = partId;
+      btn.dataset.color = c.code;
+      btn.innerHTML =
+        `<span class="color-swatch" style="background:${c.code}"></span>${c.name}`;
+      wrap.appendChild(btn);
+    });
+  }
+
+  Object.keys(PARTS).forEach(id => makeButtons(id));
+
+  // SVG 가져오기
+  function getSvgDoc() {
+    const obj = document.getElementById("wetsuitSvg");
+    if (!obj) return null;
+    if (obj.contentDocument) return obj.contentDocument;
+    if (obj.getSVGDocument) return obj.getSVGDocument();
+    return null;
+  }
+
+  function initSvgInteraction() {
+    const svgDoc = getSvgDoc();
+    if (!svgDoc) return;
+
+    const buttons = document.querySelectorAll(".color-btn");
+
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const part = btn.dataset.target;
+        const color = btn.dataset.color;
+        const selector = PARTS[part];
+        const nodes = svgDoc.querySelectorAll(selector);
+
+        nodes.forEach(el => {
+          el.style.fill = color;
+        });
+      });
+    });
+  }
+
+  window.addEventListener("load", () => {
+    const obj = document.getElementById("wetsuitSvg");
+
+    initSvgInteraction();
+
+    if (obj) {
+      obj.addEventListener("load", initSvgInteraction);
+    }
+  });
+</script>
